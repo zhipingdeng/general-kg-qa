@@ -7,6 +7,6 @@ build/
 .pytest_cache/
 .coverage
 node_modules/
-data/
+/data/
 .hermes/
 .venv/
