@@ -10,3 +10,4 @@ node_modules/
 /data/
 .hermes/
 .venv/
+frontend/package-lock.json
