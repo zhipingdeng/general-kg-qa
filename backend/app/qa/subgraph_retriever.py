@@ -1,5 +1,6 @@
 """Subgraph Retriever - Query Neo4j for entity properties and relationships."""
 
+import asyncio
 from app.database.neo4j_client import Neo4jClient
 from typing import Any
 
@@ -10,6 +11,8 @@ class SubgraphRetriever:
 
     async def retrieve(self, entity_name: str, source: str | None = None) -> dict[str, Any]:
         """Retrieve entity properties and outgoing relationships from Neo4j.
+
+        Properties and relationships are fetched concurrently via asyncio.gather.
 
         Args:
             entity_name: The name of the entity to look up.
@@ -24,9 +27,19 @@ class SubgraphRetriever:
             where += " AND n.source = $source"
             params["source"] = source
 
-        # Query 1: Get entity properties
+        # Two independent queries — run concurrently
         props_query = f"MATCH (n:Entity WHERE {where}) RETURN properties(n) AS props"
-        props_result = await self._client.execute(props_query, **params)
+        rel_query = f"""
+        MATCH (n:Entity WHERE {where})-[r]->(m)
+        RETURN type(r) AS rel_type, labels(m) AS target_labels,
+               m.name AS target, properties(r) AS rel_props
+        LIMIT 50
+        """
+
+        props_result, rel_result = await asyncio.gather(
+            self._client.execute(props_query, **params),
+            self._client.execute(rel_query, **params),
+        )
 
         properties = {}
         if props_result:
@@ -36,19 +49,12 @@ class SubgraphRetriever:
                 if k not in ("name", "source")
             }
 
-        # Query 2: Get outgoing relationships
-        rel_query = f"""
-        MATCH (n:Entity WHERE {where})-[r]->(m:Entity)
-        RETURN type(r) AS rel_type, m.name AS target, properties(r) AS rel_props
-        LIMIT 50
-        """
-        rel_result = await self._client.execute(rel_query, **params)
-
         relationships = []
         for row in rel_result:
             relationships.append({
                 "relation": row["rel_type"],
                 "target": row["target"],
+                "target_type": row.get("target_labels", [""])[0] if row.get("target_labels") else "",
                 "properties": row["rel_props"],
             })
 
