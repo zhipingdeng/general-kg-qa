@@ -6,6 +6,7 @@ from backend.app.database.mysql import get_engine, Base
 from backend.app.api.v1.health import router as health_router
 from backend.app.api.v1.auth import router as auth_router
 from backend.app.api.v1.qa import router as qa_router
+from backend.app.api.v1.knowledge import router as knowledge_router
 from backend.app.qa.entity_linker import EntityLinker
 from backend.app.qa.subgraph_retriever import SubgraphRetriever
 from backend.app.qa.answer_generator import AnswerGenerator
@@ -56,3 +57,4 @@ app = FastAPI(title="General KG-QA", version="0.1.0", lifespan=lifespan)
 app.include_router(health_router, prefix="/api/v1", tags=["health"])
 app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
 app.include_router(qa_router, prefix="/api/v1", tags=["qa"])
+app.include_router(knowledge_router, prefix="/api/v1", tags=["knowledge"])
