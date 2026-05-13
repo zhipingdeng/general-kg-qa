@@ -1,0 +1,43 @@
+services:
+  neo4j:
+    image: neo4j:5-community
+    container_name: neo4j-kgqa
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    environment:
+      NEO4J_AUTH: neo4j/kgqa123
+      NEO4J_dbms_security_auth__minimum__password__length: 6
+      NEO4J_PLUGINS: '[]'
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-kgqa
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: general_kg_qa
+      MYSQL_USER: kgqa
+      MYSQL_PASSWORD: kgqa123
+    volumes:
+      - mysql_data:/var/lib/mysql
+    user: root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  mysql_data:
