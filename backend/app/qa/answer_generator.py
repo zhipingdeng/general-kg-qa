@@ -48,6 +48,9 @@ class AnswerGenerator:
     async def generate(self, question: str, subgraph: dict[str, Any]) -> str:
         """Call the LLM API to generate an answer.
 
+        Handles thinking models (e.g. Qwen3) that put the answer in
+        the ``reasoning`` field when ``content`` is empty.
+
         Args:
             question: The user's natural language question.
             subgraph: Dict with keys: entity, properties, relationships.
@@ -56,7 +59,7 @@ class AnswerGenerator:
             The LLM's answer string.
         """
         prompt = self.build_prompt(question, subgraph)
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers={"Authorization": f"Bearer {self.api_key}"},
@@ -64,9 +67,23 @@ class AnswerGenerator:
                     "model": self.model_name,
                     "messages": [{"role": "user", "content": prompt}],
                     "temperature": 0.3,
-                    "max_tokens": 512,
+                    "max_tokens": 2048,
                 },
             )
             response.raise_for_status()
             data = response.json()
-            return data["choices"][0]["message"]["content"]
+            msg = data["choices"][0]["message"]
+
+            # Prefer content; fall back to reasoning (thinking models)
+            content = (msg.get("content") or "").strip()
+            if not content:
+                reasoning = (msg.get("reasoning") or "").strip()
+                if reasoning:
+                    # Extract the last paragraph as the actual answer
+                    # (thinking models put reasoning first, answer last)
+                    paragraphs = [p.strip() for p in reasoning.split("\n") if p.strip()]
+                    # Take last 1-3 paragraphs as the answer
+                    answer_start = max(0, len(paragraphs) - 3)
+                    content = "\n".join(paragraphs[answer_start:])
+
+            return content or "抱歉，LLM 未能生成回答。"
