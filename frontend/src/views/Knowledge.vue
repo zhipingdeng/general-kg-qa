@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import * as d3 from 'd3'
 import { knowledgeApi } from '@/api/qa'
 import type { KnowledgeNode, KnowledgeEdge, KnowledgeGraph } from '@/types'
