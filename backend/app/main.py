@@ -1,22 +1,22 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from backend.app.config import get_settings
-from backend.app.database.neo4j_client import Neo4jClient
-from backend.app.database.milvus_client import MilvusClient
-from backend.app.database.mysql import get_engine, Base
-from backend.app.api.v1.health import router as health_router
-from backend.app.api.v1.auth import router as auth_router
-from backend.app.api.v1.qa import router as qa_router
-from backend.app.api.v1.knowledge import router as knowledge_router
-from backend.app.rag.embeddings import EmbeddingService
-from backend.app.rag.bm25_retriever import BM25Retriever
-from backend.app.rag.hyde import HyDEGenerator
-from backend.app.rag.query_rewriter import QueryRewriter
-from backend.app.rag.hybrid_retriever import HybridRetriever
-from backend.app.qa.entity_linker import EntityLinker
-from backend.app.qa.subgraph_retriever import SubgraphRetriever
-from backend.app.qa.answer_generator import AnswerGenerator
-from backend.app.qa.pipeline import QAPipeline
+from app.config import get_settings
+from app.database.neo4j_client import Neo4jClient
+from app.database.milvus_client import MilvusClient
+from app.database.mysql import get_engine, Base
+from app.api.v1.health import router as health_router
+from app.api.v1.auth import router as auth_router
+from app.api.v1.qa import router as qa_router
+from app.api.v1.knowledge import router as knowledge_router
+from app.rag.embeddings import EmbeddingService
+from app.rag.bm25_retriever import BM25Retriever
+from app.rag.hyde import HyDEGenerator
+from app.rag.query_rewriter import QueryRewriter
+from app.rag.hybrid_retriever import HybridRetriever
+from app.qa.entity_linker import EntityLinker
+from app.qa.subgraph_retriever import SubgraphRetriever
+from app.qa.answer_generator import AnswerGenerator
+from app.qa.pipeline import QAPipeline
 
 
 @asynccontextmanager

@@ -1,0 +1,37 @@
+[project]
+name = "general-kg-qa"
+version = "0.1.0"
+description = "通用百科知识图谱问答系统"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.34",
+    "gunicorn>=23.0",
+    "pydantic-settings>=2.7",
+    "neo4j>=5.27",
+    "langchain>=0.3",
+    "langchain-openai>=0.3",
+    "httpx>=0.28",
+    "sse-starlette>=2.2",
+    "python-dotenv>=1.1",
+    "sqlalchemy>=2.0",
+    "pymysql>=1.1",
+    "pyjwt>=2.10",
+    "bcrypt>=4.2",
+    "pymilvus>=2.4",
+    "bm25s>=0.2",
+    "rank_bm25>=0.2.2",
+    "jieba>=0.42",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "pytest-cov>=6.0",
+    "httpx",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["backend/tests"]

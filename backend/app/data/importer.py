@@ -1,5 +1,5 @@
-from backend.app.database.neo4j_client import Neo4jClient
-from backend.app.data.parser import Triple
+from app.database.neo4j_client import Neo4jClient
+from app.data.parser import Triple
 
 
 class GraphImporter:

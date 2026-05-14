@@ -13,7 +13,7 @@ class EmbeddingService:
         if not text.strip():
             return self._fallback_embedding(text)
         try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 resp = await client.post(
                     f"{self.base_url}/api/embeddings",
                     json={"model": self.model, "prompt": text},
