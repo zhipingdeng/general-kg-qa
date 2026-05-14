@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # Milvus
     milvus_host: str = "localhost"
     milvus_port: int = 19530
-    milvus_collection: str = "entity_docs"
+    milvus_collection: str = "kgqa_documents"
 
     # JWT
     jwt_secret_key: str = "change-me-to-a-random-string"

@@ -83,8 +83,9 @@ async def test_qa_with_mock_pipeline(client):
     mock_pipeline.answer.return_value = QAResult(
         question="苹果的产地？",
         entities=["苹果"],
-        subgraph={},
         answer="苹果原产于中亚地区。",
+        sources=[],
+        rewritten_queries=["苹果的产地？"],
     )
 
     # Build a test app with the mock pipeline

@@ -11,7 +11,10 @@ from backend.app.api.v1.knowledge import router as knowledge_router
 from backend.app.rag.embeddings import EmbeddingService
 from backend.app.rag.bm25_retriever import BM25Retriever
 from backend.app.rag.hyde import HyDEGenerator
+from backend.app.rag.query_rewriter import QueryRewriter
 from backend.app.rag.hybrid_retriever import HybridRetriever
+from backend.app.qa.entity_linker import EntityLinker
+from backend.app.qa.subgraph_retriever import SubgraphRetriever
 from backend.app.qa.answer_generator import AnswerGenerator
 from backend.app.qa.pipeline import QAPipeline
 
@@ -57,9 +60,37 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
-    # Hybrid Retriever
+    # Query Rewriter
+    query_rewriter = QueryRewriter(
+        settings.llm_model_name,
+        settings.llm_base_url,
+        settings.llm_api_key,
+    )
+
+    # Entity Linker + Graph Retriever
+    entity_linker = EntityLinker()
+    graph_retriever = SubgraphRetriever(neo4j)
+
+    # Load known entities for entity linker
+    try:
+        result = await neo4j.execute(
+            "MATCH (n:Entity {source: 'ownthink'}) RETURN n.name AS name LIMIT 5000"
+        )
+        entity_names = [r["name"] for r in result if r.get("name")]
+        entity_linker.load_from_neo4j(entity_names)
+    except Exception:
+        pass
+
+    # Hybrid Retriever (vector + BM25 + HyDE + graph)
     retriever = HybridRetriever(
-        milvus, embedding, bm25, hyde, settings.milvus_collection,
+        milvus=milvus,
+        embedding=embedding,
+        bm25=bm25,
+        hyde=hyde,
+        collection=settings.milvus_collection,
+        query_rewriter=query_rewriter,
+        graph_retriever=graph_retriever,
+        entity_linker=entity_linker,
     )
 
     # Answer Generator

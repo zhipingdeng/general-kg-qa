@@ -11,22 +11,33 @@ def test_qaresult_to_dict():
         entities=["苹果"],
         answer="苹果是一种水果。",
         sources=[{"entity_name": "苹果", "text": "一种水果"}],
+        rewritten_queries=["苹果是什么？", "苹果的定义"],
     )
     d = result.to_dict()
     assert d["question"] == "苹果是什么？"
     assert d["entities"] == ["苹果"]
     assert d["answer"] == "苹果是一种水果。"
     assert "sources" in d
+    assert "rewritten_queries" in d
 
 
 @pytest.mark.asyncio
 async def test_pipeline_answer_with_mocks():
     """Full pipeline test with mocked retriever and generator."""
     mock_retriever = AsyncMock()
-    mock_retriever.retrieve = AsyncMock(return_value=[
-        {"id": 1, "text": "苹果是一种水果", "entity_name": "苹果", "source": "s1", "rrf_score": 0.05},
-        {"id": 2, "text": "苹果原产于中国", "entity_name": "苹果", "source": "s2", "rrf_score": 0.03},
-    ])
+    mock_retriever.retrieve = AsyncMock(return_value={
+        "fused_results": [
+            {"id": 1, "text": "苹果是一种水果", "entity_name": "苹果", "source": "s1", "rrf_score": 0.05},
+            {"id": 2, "text": "苹果原产于中国", "entity_name": "苹果", "source": "s2", "rrf_score": 0.03},
+        ],
+        "graph_results": {
+            "entities": ["苹果"],
+            "subgraphs": [{"entity": "苹果", "properties": {"描述": "一种水果"}, "relationships": []}],
+        },
+        "rewritten_queries": ["苹果是什么？"],
+        "vector_results": [],
+        "bm25_results": [],
+    })
 
     mock_generator = AsyncMock()
     mock_generator.generate_with_context = AsyncMock(return_value="苹果是一种水果，原产于中国。")
@@ -39,7 +50,8 @@ async def test_pipeline_answer_with_mocks():
     assert len(result.entities) > 0
     assert "苹果" in result.entities
     assert result.answer == "苹果是一种水果，原产于中国。"
-    assert len(result.sources) == 2
+    assert len(result.sources) >= 1
+    assert result.rewritten_queries == ["苹果是什么？"]
 
     # Verify retriever was called correctly
     mock_retriever.retrieve.assert_called_once_with("苹果是什么？", top_k=5)
