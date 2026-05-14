@@ -45,6 +45,33 @@ class AnswerGenerator:
 
 请用简洁的中文回答:"""
 
+    async def generate_with_context(self, question: str, context: str) -> str:
+        """Generate answer using retrieved context documents."""
+        prompt = f"""基于以下检索到的文档信息回答用户问题。引用具体文档编号如 [1] [2]。
+如果信息不足，请说明。
+
+检索到的文档:
+{context}
+
+用户问题: {question}
+
+请用简洁的中文回答:"""
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(
+                f"{self.base_url}/chat/completions",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                json={"model": self.model_name, "messages": [{"role": "user", "content": prompt}], "temperature": 0.3, "max_tokens": 2048},
+            )
+            response.raise_for_status()
+            msg = response.json()["choices"][0]["message"]
+            content = (msg.get("content") or "").strip()
+            if not content:
+                reasoning = (msg.get("reasoning") or "").strip()
+                if reasoning:
+                    paragraphs = [p.strip() for p in reasoning.split("\n") if p.strip()]
+                    content = "\n".join(paragraphs[-3:])
+            return content or "抱歉，LLM 未能生成回答。"
+
     async def generate(self, question: str, subgraph: dict[str, Any]) -> str:
         """Call the LLM API to generate an answer.
 

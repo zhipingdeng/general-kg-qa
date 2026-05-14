@@ -2,13 +2,16 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from backend.app.config import get_settings
 from backend.app.database.neo4j_client import Neo4jClient
+from backend.app.database.milvus_client import MilvusClient
 from backend.app.database.mysql import get_engine, Base
 from backend.app.api.v1.health import router as health_router
 from backend.app.api.v1.auth import router as auth_router
 from backend.app.api.v1.qa import router as qa_router
 from backend.app.api.v1.knowledge import router as knowledge_router
-from backend.app.qa.entity_linker import EntityLinker
-from backend.app.qa.subgraph_retriever import SubgraphRetriever
+from backend.app.rag.embeddings import EmbeddingService
+from backend.app.rag.bm25_retriever import BM25Retriever
+from backend.app.rag.hyde import HyDEGenerator
+from backend.app.rag.hybrid_retriever import HybridRetriever
 from backend.app.qa.answer_generator import AnswerGenerator
 from backend.app.qa.pipeline import QAPipeline
 
@@ -30,23 +33,44 @@ async def lifespan(app: FastAPI):
     await neo4j.connect()
     app.state.neo4j = neo4j
 
-    # QA Pipeline
-    entity_linker = EntityLinker()
-    # Load known entities from Neo4j
+    # Milvus
+    milvus = MilvusClient(host=settings.milvus_host, port=settings.milvus_port)
+
+    # Embedding
+    embedding = EmbeddingService(
+        base_url=settings.embedding_base_url,
+        model=settings.embedding_model,
+    )
+
+    # HyDE
+    hyde = HyDEGenerator(
+        settings.llm_model_name,
+        settings.llm_base_url,
+        settings.llm_api_key,
+    )
+
+    # BM25: load documents from Milvus collection
+    bm25 = BM25Retriever()
     try:
-        result = await neo4j.execute("MATCH (n:Entity) RETURN n.name AS name LIMIT 10000")
-        entity_names = [r["name"] for r in result if r.get("name")]
-        entity_linker.load_from_neo4j(entity_names)
+        docs = milvus.load_all_docs(settings.milvus_collection)
+        bm25.build_index(docs)
     except Exception:
         pass
 
-    subgraph_retriever = SubgraphRetriever(neo4j)
-    answer_generator = AnswerGenerator(
-        model_name=settings.llm_model_name,
-        base_url=settings.llm_base_url,
-        api_key=settings.llm_api_key,
+    # Hybrid Retriever
+    retriever = HybridRetriever(
+        milvus, embedding, bm25, hyde, settings.milvus_collection,
     )
-    app.state.qa_pipeline = QAPipeline(entity_linker, subgraph_retriever, answer_generator)
+
+    # Answer Generator
+    generator = AnswerGenerator(
+        settings.llm_model_name,
+        settings.llm_base_url,
+        settings.llm_api_key,
+    )
+
+    # Pipeline
+    app.state.qa_pipeline = QAPipeline(retriever, generator)
 
     yield
 

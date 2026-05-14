@@ -1,9 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from backend.app.qa.entity_linker import EntityLinker
-from backend.app.qa.subgraph_retriever import SubgraphRetriever
-from backend.app.qa.answer_generator import AnswerGenerator
-from backend.app.qa.pipeline import QAPipeline, QAResult
+from app.qa.answer_generator import AnswerGenerator
+from app.qa.pipeline import QAPipeline, QAResult
 
 
 def test_qaresult_to_dict():
@@ -11,50 +9,52 @@ def test_qaresult_to_dict():
     result = QAResult(
         question="苹果是什么？",
         entities=["苹果"],
-        subgraph={"entity": "苹果", "properties": {}, "relationships": []},
         answer="苹果是一种水果。",
+        sources=[{"entity_name": "苹果", "text": "一种水果"}],
     )
     d = result.to_dict()
     assert d["question"] == "苹果是什么？"
     assert d["entities"] == ["苹果"]
     assert d["answer"] == "苹果是一种水果。"
-    assert "subgraph" in d
+    assert "sources" in d
 
 
-async def test_pipeline_no_entity_found():
-    """When no entity is recognized, return a fallback answer."""
-    linker = EntityLinker(mock_entities=["苹果"])
-    mock_client = AsyncMock()
-    retriever = SubgraphRetriever(mock_client)
-    generator = AnswerGenerator(model_name="test", base_url="http://test", api_key="test")
-
-    pipeline = QAPipeline(linker, retriever, generator)
-    result = await pipeline.answer("今天天气怎么样？")
-
-    assert result.entities == []
-    assert "抱歉" in result.answer or "未能" in result.answer
-    assert result.subgraph == {}
-
-
-async def test_pipeline_with_entity():
+@pytest.mark.asyncio
+async def test_pipeline_answer_with_mocks():
     """Full pipeline test with mocked retriever and generator."""
-    linker = EntityLinker(mock_entities=["苹果"])
-
-    # Mock retriever
-    mock_client = AsyncMock()
-    mock_client.execute = AsyncMock(side_effect=[
-        [{"props": {"name": "苹果", "source": "test", "描述": "一种水果"}}],
-        [{"rel_type": "属于", "target": "水果", "rel_props": {}}],
+    mock_retriever = AsyncMock()
+    mock_retriever.retrieve = AsyncMock(return_value=[
+        {"id": 1, "text": "苹果是一种水果", "entity_name": "苹果", "source": "s1", "rrf_score": 0.05},
+        {"id": 2, "text": "苹果原产于中国", "entity_name": "苹果", "source": "s2", "rrf_score": 0.03},
     ])
-    retriever = SubgraphRetriever(mock_client)
 
-    # Mock generator (just test build_prompt part)
-    generator = AnswerGenerator(model_name="test", base_url="http://test", api_key="test")
+    mock_generator = AsyncMock()
+    mock_generator.generate_with_context = AsyncMock(return_value="苹果是一种水果，原产于中国。")
 
-    pipeline = QAPipeline(linker, retriever, generator)
+    pipeline = QAPipeline(mock_retriever, mock_generator)
+    result = await pipeline.answer("苹果是什么？")
 
-    # We can't easily mock the async generate call, so test the structure
-    # by verifying the pipeline correctly chains components
-    assert pipeline.entity_linker is linker
-    assert pipeline.subgraph_retriever is retriever
-    assert pipeline.answer_generator is generator
+    assert isinstance(result, QAResult)
+    assert result.question == "苹果是什么？"
+    assert len(result.entities) > 0
+    assert "苹果" in result.entities
+    assert result.answer == "苹果是一种水果，原产于中国。"
+    assert len(result.sources) == 2
+
+    # Verify retriever was called correctly
+    mock_retriever.retrieve.assert_called_once_with("苹果是什么？", top_k=5)
+
+    # Verify generator was called with context
+    mock_generator.generate_with_context.assert_called_once()
+    call_args = mock_generator.generate_with_context.call_args
+    assert call_args[0][0] == "苹果是什么？"
+    assert "苹果" in call_args[0][1]
+
+
+def test_pipeline_init():
+    """Test pipeline initialization."""
+    mock_retriever = MagicMock()
+    mock_generator = MagicMock()
+    pipeline = QAPipeline(mock_retriever, mock_generator)
+    assert pipeline.retriever is mock_retriever
+    assert pipeline.generator is mock_generator

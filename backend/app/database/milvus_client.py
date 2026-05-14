@@ -71,3 +71,22 @@ class MilvusClient:
     def count(self, collection: str) -> int:
         col = Collection(collection)
         return col.num_entities
+
+    def load_all_docs(self, collection: str) -> list[dict]:
+        """Load all documents from collection for BM25 index."""
+        col = Collection(collection)
+        col.load()
+        results = col.query(
+            expr="id >= 0",
+            output_fields=["id", "text", "entity_name", "source"],
+            limit=10000,
+        )
+        return [
+            {
+                "id": r["id"],
+                "text": r["text"],
+                "entity_name": r["entity_name"],
+                "source": r["source"],
+            }
+            for r in results
+        ]

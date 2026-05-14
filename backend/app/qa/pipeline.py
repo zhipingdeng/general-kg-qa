@@ -1,9 +1,7 @@
-"""QA Pipeline - Orchestrate entity linking, subgraph retrieval, and answer generation."""
-
+"""QA Pipeline - Hybrid retrieval + LLM answer generation."""
 from dataclasses import dataclass, asdict
 from typing import Any
-from app.qa.entity_linker import EntityLinker
-from app.qa.subgraph_retriever import SubgraphRetriever
+from app.rag.hybrid_retriever import HybridRetriever
 from app.qa.answer_generator import AnswerGenerator
 
 
@@ -11,55 +9,37 @@ from app.qa.answer_generator import AnswerGenerator
 class QAResult:
     question: str
     entities: list[str]
-    subgraph: dict[str, Any]
     answer: str
+    sources: list[dict]
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 class QAPipeline:
-    def __init__(
-        self,
-        entity_linker: EntityLinker,
-        subgraph_retriever: SubgraphRetriever,
-        answer_generator: AnswerGenerator,
-    ):
-        self.entity_linker = entity_linker
-        self.subgraph_retriever = subgraph_retriever
-        self.answer_generator = answer_generator
+    def __init__(self, retriever: HybridRetriever, generator: AnswerGenerator):
+        self.retriever = retriever
+        self.generator = generator
 
     async def answer(self, question: str) -> QAResult:
-        """Process a question through the full QA pipeline.
+        # 1. Hybrid retrieval
+        docs = await self.retriever.retrieve(question, top_k=5)
 
-        Steps:
-        1. Extract entities from the question.
-        2. If no entities found, return a fallback answer.
-        3. Retrieve subgraph for the first (most relevant) entity.
-        4. Generate an answer using the LLM.
+        # 2. Build context from retrieved documents
+        context_parts = []
+        for i, doc in enumerate(docs, 1):
+            entity = doc.get("entity_name", "")
+            text = doc.get("text", "")
+            score = doc.get("rrf_score", 0)
+            context_parts.append(f"[{i}] {entity}: {text} (相关度: {score:.3f})")
+        context = "\n".join(context_parts)
 
-        Args:
-            question: The user's natural language question.
-
-        Returns:
-            A QAResult with question, entities, subgraph, and answer.
-        """
-        entities = self.entity_linker.extract_entities(question)
-        if not entities:
-            return QAResult(
-                question=question,
-                entities=[],
-                subgraph={},
-                answer="抱歉，未能从问题中识别出已知实体。请尝试换一种问法。",
-            )
-
-        entity = entities[0]
-        subgraph = await self.subgraph_retriever.retrieve(entity)
-        answer = await self.answer_generator.generate(question, subgraph)
+        # 3. LLM generate answer with context
+        answer = await self.generator.generate_with_context(question, context)
 
         return QAResult(
             question=question,
-            entities=entities,
-            subgraph=subgraph,
+            entities=[d.get("entity_name", "") for d in docs[:3]],
             answer=answer,
+            sources=docs,
         )
