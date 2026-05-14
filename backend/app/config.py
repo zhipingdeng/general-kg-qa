@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     embedding_model: str = "bge-m3"
     embedding_base_url: str = "http://172.22.80.1:11434"
 
+    # Milvus
+    milvus_host: str = "localhost"
+    milvus_port: int = 19530
+    milvus_collection: str = "entity_docs"
+
     # JWT
     jwt_secret_key: str = "change-me-to-a-random-string"
     jwt_algorithm: str = "HS256"
