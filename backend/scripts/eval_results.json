@@ -1,0 +1,266 @@
+{
+  "aggregate": {
+    "total_questions": 12,
+    "retrieval": {
+      "recall@5": 1.0,
+      "precision@5": 0.9583,
+      "mrr": 1.0,
+      "hit_rate": 1.0,
+      "ndcg@5": 1.0
+    },
+    "generation": {
+      "exact_match": 0.0,
+      "f1_score": 0.3131,
+      "contains_answer": 0.5833,
+      "faithfulness": 0.0
+    },
+    "latency": {
+      "avg_ms": 21167.3,
+      "p50_ms": 21541.7,
+      "p95_ms": 30785.4
+    }
+  },
+  "details": [
+    {
+      "question": "京九铁路途径哪些城市",
+      "reference": "北京、商丘、南昌、深圳、香港等",
+      "generated": "检索到的文档中没有京九铁路途经城市的具体信息。文档[1]仅提到京九铁路\"北起北京西站，南至香港红磡站\"，但未列出途经城市列表。",
+      "entities": [
+        "京九铁路"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.14285714285714285,
+        "contains": false
+      },
+      "latency_ms": 30785.379781998927
+    },
+    {
+      "question": "欧洲冠军联赛派出了多少支队伍参赛？",
+      "reference": "32 （正赛）；79或80（总数）",
+      "generated": "检索到的文档中没有明确说明欧洲冠军联赛派出了多少支队伍参赛的信息。文档[1]仅描述了欧洲冠军联赛的组成部分（预选赛、资格赛、附加赛和正赛），但未提及参赛队伍数量；文档[2]提到\"8支欧冠小组赛第三\"，但这是指欧冠小组赛第三名队伍进入欧洲联赛的情况，而非欧冠总参赛队伍数。其他文档均与欧洲冠军联赛参赛队伍数量无关。因此，信息不足。",
+      "entities": [
+        "欧洲冠军联赛"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.07407407407407408,
+        "contains": false
+      },
+      "latency_ms": 21093.64673699747
+    },
+    {
+      "question": "三亚有哪些港口",
+      "reference": "三亚港",
+      "generated": "三亚有榆林港 [4]",
+      "entities": [
+        "三亚"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.5,
+        "contains": true
+      },
+      "latency_ms": 16416.025174003153
+    },
+    {
+      "question": "你知道马鞍岭火山口什么时候最适合旅游吗？",
+      "reference": "一年四季",
+      "generated": "根据文档[1]，马鞍岭火山口的最佳旅游时间是一年四季。",
+      "entities": [
+        "马鞍岭火山口"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.2758620689655173,
+        "contains": true
+      },
+      "latency_ms": 14240.853561001131
+    },
+    {
+      "question": "伊扎克·拉宾的所属政党是什么",
+      "reference": "以色列工党",
+      "generated": "检索到的文档中没有提供伊扎克·拉宾所属政党的信息。文档[1]仅描述伊扎克·拉宾为\"以色列政治家、军事家\"，但未提及具体所属政党；其他文档均与伊扎克·拉宾无关。",
+      "entities": [
+        "伊扎克·拉宾"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.10126582278481013,
+        "contains": false
+      },
+      "latency_ms": 25106.07325199817
+    },
+    {
+      "question": "德天瀑布位于哪里？",
+      "reference": "中越边境",
+      "generated": "德天瀑布位于广西壮族自治区崇左市大新县硕龙镇德天村，中越边境处的归春河上游。[1]",
+      "entities": [
+        "德天瀑布"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.18604651162790695,
+        "contains": true
+      },
+      "latency_ms": 26667.837424000027
+    },
+    {
+      "question": "你知道西沙群岛的陆地面积吗？",
+      "reference": "约10平方公里",
+      "generated": "西沙群岛的陆地面积是约10平方公里 [1]",
+      "entities": [
+        "西沙群岛",
+        "面积"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 0.5,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.5185185185185185,
+        "contains": true
+      },
+      "latency_ms": 17210.99090899952
+    },
+    {
+      "question": "一百单八将是哪个时期的",
+      "reference": "北宋末年",
+      "generated": "北宋末年 [1]",
+      "entities": [
+        "一百单八将"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.7272727272727273,
+        "contains": true
+      },
+      "latency_ms": 18371.72385499798
+    },
+    {
+      "question": "你知道乔治·沃克·布什属于什么政党的吗",
+      "reference": "美国共和党",
+      "generated": "美国共和党 [1]",
+      "entities": [
+        "乔治·沃克·布什"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.7692307692307693,
+        "contains": true
+      },
+      "latency_ms": 24861.021226999583
+    },
+    {
+      "question": "w-inds.的师兄是哪个",
+      "reference": "DA PUMP",
+      "generated": "w-inds.的师兄是DA PUMP [1]。",
+      "entities": [
+        "w-inds."
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.4615384615384615,
+        "contains": true
+      },
+      "latency_ms": 14330.65754600102
+    },
+    {
+      "question": "你知道婚神星的逃逸速度是多少吗？",
+      "reference": "0.18 km/s",
+      "generated": "检索到的文档中未提供婚神星的逃逸速度信息。",
+      "entities": [
+        "婚神星"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.0,
+        "contains": false
+      },
+      "latency_ms": 23382.19261300037
+    },
+    {
+      "question": "请问东昌湖的水有多深？",
+      "reference": "2～3米",
+      "generated": "检索到的文档中没有提供东昌湖的水深信息。",
+      "entities": [
+        "东昌湖"
+      ],
+      "retrieval": {
+        "recall": 1.0,
+        "precision": 1.0,
+        "mrr": 1.0,
+        "hit_rate": 1.0
+      },
+      "generation": {
+        "exact_match": false,
+        "f1": 0.0,
+        "contains": false
+      },
+      "latency_ms": 21541.692252001667
+    }
+  ]
+}
