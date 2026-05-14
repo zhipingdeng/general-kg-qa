@@ -18,6 +18,8 @@ dependencies = [
     "pymysql>=1.1",
     "pyjwt>=2.10",
     "bcrypt>=4.2",
+    "pymilvus>=2.4",
+    "bm25s>=0.2",
 ]
 
 [project.optional-dependencies]
