@@ -11,13 +11,13 @@ class Settings(BaseSettings):
     # Neo4j
     neo4j_uri: str = "bolt://localhost:7687"
     neo4j_user: str = "neo4j"
-    neo4j_password: str = "kgqa123"
+    neo4j_password: str = ""
 
     # MySQL
     mysql_host: str = "localhost"
     mysql_port: int = 3307
     mysql_user: str = "kgqa"
-    mysql_password: str = "kgqa123"
+    mysql_password: str = ""
     mysql_database: str = "general_kg_qa"
 
     # Embedding
