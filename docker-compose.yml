@@ -6,7 +6,7 @@ services:
       - "7687:7687"
       - "7474:7474"
     environment:
-      NEO4J_AUTH: neo4j/kgqa123
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
       NEO4J_dbms_security_auth__minimum__password__length: 6
       NEO4J_PLUGINS: '[]'
     volumes:
@@ -24,7 +24,7 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: general_kg_qa
       MYSQL_USER: kgqa
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}

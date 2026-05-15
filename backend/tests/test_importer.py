@@ -9,7 +9,7 @@ async def neo4j_client():
     client = Neo4jClient(
         uri="bolt://localhost:7687",
         user="neo4j",
-        password="kgqa123",
+        password="test_password",
     )
     await client.connect()
     yield client

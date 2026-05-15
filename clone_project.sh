@@ -48,17 +48,17 @@ sed -i "s/\"8000:8000\"/\"${BACKEND_PORT}:8000\"/g" docker-compose.yml
 sed -i "s/\"80:80\"/\"${FRONTEND_PORT}:80\"/g" docker-compose.yml
 
 # Update MySQL password for uniqueness
-sed -i "s/NEO4J_PASSWORD: kgqa123/NEO4J_PASSWORD: ${PROJECT_NAME}/g" docker-compose.yml
-sed -i "s/NEO4J_AUTH: neo4j\/kgqa123/NEO4J_AUTH: neo4j\/${PROJECT_NAME}/g" docker-compose.yml
-sed -i "s/MYSQL_PASSWORD: kgqa123/MYSQL_PASSWORD: ${PROJECT_NAME}/g" docker-compose.yml
-sed -i "s/NEO4J_PASSWORD=kgqa123/NEO4J_PASSWORD=${PROJECT_NAME}/g" docker-compose.yml
+sed -i "s/NEO4J_PASSWORD: your_neo4j_password/NEO4J_PASSWORD: ${PROJECT_NAME}/g" docker-compose.yml
+sed -i "s/NEO4J_AUTH: neo4j\/your_neo4j_password/NEO4J_AUTH: neo4j\/${PROJECT_NAME}/g" docker-compose.yml
+sed -i "s/MYSQL_PASSWORD: your_mysql_password/MYSQL_PASSWORD: ${PROJECT_NAME}/g" docker-compose.yml
+sed -i "s/NEO4J_PASSWORD=your_neo4j_password/NEO4J_PASSWORD=${PROJECT_NAME}/g" docker-compose.yml
 
 # Update .env
 sed -i "s/MYSQL_PORT=3307/MYSQL_PORT=${MYSQL_PORT}/g" .env
 sed -i "s/NEO4J_URI=bolt:\/\/localhost:7687/NEO4J_URI=bolt:\/\/localhost:${NEO4J_BOLT}/g" .env
 sed -i "s/MILVUS_PORT=19530/MILVUS_PORT=${MILVUS_PORT}/g" .env
-sed -i "s/NEO4J_PASSWORD=kgqa123/NEO4J_PASSWORD=${PROJECT_NAME}/g" .env
-sed -i "s/MYSQL_PASSWORD=kgqa123/MYSQL_PASSWORD=${PROJECT_NAME}/g" .env
+sed -i "s/NEO4J_PASSWORD=your_neo4j_password/NEO4J_PASSWORD=${PROJECT_NAME}/g" .env
+sed -i "s/MYSQL_PASSWORD=your_mysql_password/MYSQL_PASSWORD=${PROJECT_NAME}/g" .env
 sed -i "s/API_PORT=8000/API_PORT=${BACKEND_PORT}/g" .env
 
 # Update .env.example
